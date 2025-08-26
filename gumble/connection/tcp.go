@@ -4,10 +4,11 @@ import (
 	"crypto/tls"
 	"encoding/binary"
 	"fmt"
-	"github.com/bytecntrl/gumble/gumble/errors"
-	"google.golang.org/protobuf/proto"
 	"sync"
 
+	"google.golang.org/protobuf/proto"
+
+	"github.com/bytecntrl/gumble/gumble/errors"
 	"github.com/bytecntrl/gumble/gumble/model"
 )
 
