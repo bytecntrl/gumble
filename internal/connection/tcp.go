@@ -8,35 +8,30 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/bytecntrl/gumble/gumble/errors"
-	"github.com/bytecntrl/gumble/gumble/model"
+	"github.com/bytecntrl/gumble/internal/errors"
+	"github.com/bytecntrl/gumble/internal/model"
 )
 
 // TCPConn is a wrapper around a TLS connection.
 type TCPConn struct {
 	sync.Mutex
 
-	conn *tls.Conn        // Secure TCP connection
-	auth model.AuthConfig // Authentication info
+	conn *tls.Conn // Secure TCP connection
 }
 
 // NewTCPConn creates a new TCPConn using the connection settings.
-func NewTCPConn(cfg *model.ConnectionConfig) (*TCPConn, error) {
+func NewTCPConn(cfg *model.NetConfig, tlsConfig *tls.Config) (*TCPConn, error) {
 	dialer := newDialer()
 	address := fmt.Sprintf("%s:%d", cfg.Hostname, cfg.Port)
 
 	// Connect to server with TLS
-	conn, err := tls.DialWithDialer(dialer, "tcp", address, &tls.Config{})
+	conn, err := tls.DialWithDialer(dialer, "tcp", address, tlsConfig)
 	if err != nil {
 		return nil, errors.NewTCPConnectionError("failed to connect to server", err)
 	}
 
 	return &TCPConn{
 		conn: conn,
-		auth: model.AuthConfig{
-			Username: cfg.Username,
-			Password: cfg.Password,
-		},
 	}, nil
 }
 

@@ -3,7 +3,7 @@ package connection
 import (
 	"google.golang.org/protobuf/proto"
 
-	"github.com/bytecntrl/gumble/gumble/proto/tcp"
+	"github.com/bytecntrl/gumble/internal/proto/tcp"
 )
 
 func GetTCPMessageType(msg proto.Message) (uint16, bool) {
