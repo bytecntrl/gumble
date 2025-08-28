@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/bytecntrl/gumble/internal/errors"
+	"github.com/bytecntrl/gumble/errs"
 	"github.com/bytecntrl/gumble/internal/model"
 )
 
@@ -27,7 +27,7 @@ func NewTCPConn(cfg *model.NetConfig, tlsConfig *tls.Config) (*TCPConn, error) {
 	// Connect to server with TLS
 	conn, err := tls.DialWithDialer(dialer, "tcp", address, tlsConfig)
 	if err != nil {
-		return nil, errors.NewTCPConnectionError("failed to connect to server", err)
+		return nil, errs.NewTCPConnectionError("failed to connect to server", err)
 	}
 
 	return &TCPConn{
@@ -38,7 +38,7 @@ func NewTCPConn(cfg *model.NetConfig, tlsConfig *tls.Config) (*TCPConn, error) {
 // Close the connection with the server
 func (conn *TCPConn) Close() error {
 	if err := conn.conn.Close(); err != nil {
-		return errors.NewTCPConnectionError("failed to close TCP connection", err)
+		return errs.NewTCPConnectionError("failed to close TCP connection", err)
 	}
 	return nil
 }
@@ -67,12 +67,12 @@ func (conn *TCPConn) WritePacket(msg proto.Message) error {
 
 	messageType, ok := GetTCPMessageType(msg)
 	if !ok {
-		return errors.NewInvalidMessageType("unsupported or invalid TCP message type")
+		return errs.NewInvalidMessageType("unsupported or invalid TCP message type")
 	}
 
 	data, err := proto.Marshal(msg)
 	if err != nil {
-		return errors.NewSerializationError("failed to marshal proto", err)
+		return errs.NewSerializationError("failed to marshal proto", err)
 	}
 
 	header := conn.CreateHeader(messageType, uint32(len(data)))
@@ -80,10 +80,10 @@ func (conn *TCPConn) WritePacket(msg proto.Message) error {
 
 	n, err := conn.conn.Write(packet)
 	if err != nil {
-		return errors.NewTCPWriteError("failed to write to TCP connection", err)
+		return errs.NewTCPWriteError("failed to write to TCP connection", err)
 	}
 	if n != len(packet) {
-		return errors.NewTCPIncompleteWrite("incomplete TCP packet write")
+		return errs.NewTCPIncompleteWrite("incomplete TCP packet write")
 	}
 
 	return nil
